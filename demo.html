@@ -1,0 +1,95 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>按起终点经纬度规划路线</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css" />
+    <style type="text/css">
+        #panel {
+            position: fixed;
+            background-color: white;
+            max-height: 90%;
+            overflow-y: auto;
+            top: 10px;
+            right: 10px;
+            width: 280px;
+        }
+    </style>
+    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.3&key=65ae8db38b46b759489a501ad83e15f5&plugin=AMap.Walking"></script>
+    <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+
+    <script src="amap-walk2.min.js"></script>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="panel"></div>
+
+    <script type="text/javascript">
+        var map = new AMap.Map("container", {
+            resizeEnable: true,
+            center: [116.397428, 39.90923],//地图中心点
+            zoom: 13 //地图显示的缩放级别
+        });
+
+        var coords_arr = [[116.399028, 39.845042], [116.436281, 39.880719], [116.436281, 39.822719]];
+
+        function drawmarker(text,coord) {
+            var text = new AMap.Text({
+                text: text,
+                textAlign: 'center', // 'left' 'right', 'center',
+                verticalAlign: 'middle', //middle 、bottom
+                draggable: true,
+                cursor: 'pointer',
+                angle: 10,
+                style: {
+                    'background-color': 'yellow',
+                    'border': 'solid 1px #0088ff',
+                    'padding': '10px 20px'
+                },
+                position: coord
+            });
+            text.setMap(map);
+        }
+
+        function drawline(lineArr) {
+            var polyline = new AMap.Polyline({
+                path: lineArr,          //设置线覆盖物路径
+                strokeColor: "#3366FF", //线颜色
+                strokeOpacity: 1,       //线透明度
+                strokeWeight: 5,        //线宽
+                strokeStyle: "solid",   //线样式
+                strokeDasharray: [10, 5] //补充线样式
+            });
+            polyline.setMap(map);
+
+        }
+
+        //根据起终点坐标规划步行路线
+        function complete(rs) {
+            var coords = [];
+            for (var i = 0; i < rs.length; i++) {
+                var ms = rs[i];
+                var steps = ms[0].steps;
+                for (var j = 0; j < steps.length; j++) {
+                    var step = steps[j];
+                    var pathes = step.path;
+                    for (var k = 0; k < pathes.length; k++) {
+                        coords.push([pathes[k].lng, pathes[k].lat]);
+                    }
+                }
+                drawmarker((i + 1) + '', coords_arr[i])
+
+            }
+            drawmarker((coords_arr.length) + '', coords_arr[coords_arr.length - 1])
+            drawline(coords);
+        }
+
+        walking2.search(coords_arr, complete);
+        
+    </script>
+
+  
+</body>
+</html>
